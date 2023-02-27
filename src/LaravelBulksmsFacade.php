@@ -179,11 +179,13 @@ class LaravelBulksmsFacade extends Facade
             $response = $this->httpPost($url[0], $data, explode(",", $this->config['balance_header']));
         }
         $balance = [];
-        array_walk_recursive($response, function ($v, $k) use (&$balance) {
-            if ($k === $this->config['balance_key']) {
-                $balance[] = $v;
-            }
-        });
+        if (is_array($response) || is_object($response)) {
+            array_walk_recursive($response, function ($v, $k) use (&$balance) {
+                if ($k === $this->config['balance_key']) {
+                    $balance[] = $v;
+                }
+            });
+        }
         return (float) @$balance[0];
     }
 
