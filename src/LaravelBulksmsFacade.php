@@ -11,7 +11,6 @@ use Log;
  */
 class LaravelBulksmsFacade extends Facade
 {
-
     /**
      * SMS API Details
      *
@@ -67,7 +66,7 @@ class LaravelBulksmsFacade extends Facade
 
     /**
      * SMS to Number
-     * @param  string  $to
+     * @param string $to
      */
     public function to($to): self
     {
@@ -77,7 +76,7 @@ class LaravelBulksmsFacade extends Facade
 
     /**
      * SMS Text
-     * @param  string  $message
+     * @param string $message
      */
     public function message($message): self
     {
@@ -87,7 +86,7 @@ class LaravelBulksmsFacade extends Facade
 
     /**
      * Add new Line
-     * @param  string  $line
+     * @param string $line
      */
     public function line($line = ''): self
     {
@@ -106,7 +105,7 @@ class LaravelBulksmsFacade extends Facade
         if (file_exists($file)) {
             $this->config = json_decode(file_get_contents($file), true);
         } else {
-            throw new Exception("Magic SMS Config File Not Found!", 1);
+            throw new Exception('Magic SMS Config File Not Found!', 1);
         }
     }
 
@@ -121,15 +120,15 @@ class LaravelBulksmsFacade extends Facade
 
     /**
      * HTTP GET Request
-     * @param  string $url api url
-     * @param  array  $data params
-     * @param  array  $headers headers
+     * @param string $url     api url
+     * @param array  $data    params
+     * @param array  $headers headers
      * @return object/string GET Response
      */
     private function httpGet($url, $data, $headers = [])
     {
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url . "?" . http_build_query($data));
+        curl_setopt($ch, CURLOPT_URL, $url . '?' . http_build_query($data));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         if (!empty($headers)) {
@@ -143,9 +142,9 @@ class LaravelBulksmsFacade extends Facade
 
     /**
      * HTTP POST Request
-     * @param  string $url api url
-     * @param  array  $data params
-     * @param  array  $headers headers
+     * @param string $url     api url
+     * @param array  $data    params
+     * @param array  $headers headers
      * @return object/string POST Response
      */
     private function httpPost($url, $data, $headers = [])
@@ -173,10 +172,10 @@ class LaravelBulksmsFacade extends Facade
     {
         $url = explode('?', $this->config['balance_url']);
         parse_str($url[1], $data);
-        if (preg_match("/get/i", $this->config['balance_method'])) {
-            $response = $this->httpGet($url[0], $data, explode(",", $this->config['balance_header']));
+        if (preg_match('/get/i', $this->config['balance_method'])) {
+            $response = $this->httpGet($url[0], $data, explode(',', $this->config['balance_header']));
         } else {
-            $response = $this->httpPost($url[0], $data, explode(",", $this->config['balance_header']));
+            $response = $this->httpPost($url[0], $data, explode(',', $this->config['balance_header']));
         }
         $balance = [];
         if (is_array($response) || is_object($response)) {
@@ -199,13 +198,13 @@ class LaravelBulksmsFacade extends Facade
         $message      = (empty($this->lines)) ? $this->message : implode("\n", $this->lines);
         $url          = explode('?', $this->config['send_url']);
         parse_str($url[1], $data);
-        $headers  = explode(",", $this->config['send_header']);
+        $headers  = explode(',', $this->config['send_header']);
         $response = [];
 
         $data[$this->config['send_key_mobile']]  = $mobileNumber;
         $data[$this->config['send_key_message']] = $message;
 
-        if (preg_match("/get/i", $this->config['send_method'])) {
+        if (preg_match('/get/i', $this->config['send_method'])) {
             if ($this->config['api_mode'] == 'dry') {
                 Log::info(json_encode(['method' => 'GET', 'url' => $url[0], 'params' => $data, 'headers' => $headers]));
             } else {
@@ -231,13 +230,18 @@ class LaravelBulksmsFacade extends Facade
 
     /**
      * Check API Url & Save as JSON in storage_path
-     * @param  arrau $params params
-     * @param  string $url API URL (Send)
+     * @param  arrau  $params params
+     * @param  string $url    API URL (Send)
      * @param  string $config config name
-     * @return array formated data
+     * @return array  formated data
      */
     public function checkAndSave($params, $url, $config)
     {
+        $url                = htmlspecialchars_decode(urldecode($url));
+        $params['send_url'] = htmlspecialchars_decode(urldecode($params['send_url']));
+        if (array_key_exists('balance_url', $params)) {
+            $params['balance_url'] = htmlspecialchars_decode(urldecode($params['balance_url']));
+        }
         $file         = app('path.storage') . DIRECTORY_SEPARATOR . 'magic-sms' . DIRECTORY_SEPARATOR . $config;
         $formattedUrl = $this->checkAndFormatUrl($url);
         if ($formattedUrl && $formattedUrl['status']) {
@@ -245,16 +249,17 @@ class LaravelBulksmsFacade extends Facade
             $params['send_key_mobile']  = $formattedUrl['send_key_mobile'];
             $params['send_key_message'] = $formattedUrl['send_key_message'];
         } else {
-            throw new Exception("Invalid Send URL", 1);
+            throw new Exception('Invalid Send URL', 1);
         }
-        file_put_contents($file, json_encode($params, JSON_PRETTY_PRINT));
+        // dd($params);
+        file_put_contents($file, json_encode($params, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         return $formattedUrl;
     }
 
     /**
      * Check and Format API URL (Send)
-     * @param  string $BulkSMS_url  API URL (Send)
-     * @return array formated data
+     * @param  string $BulkSMS_url API URL (Send)
+     * @return array  formated data
      */
     public function checkAndFormatUrl($BulkSMS_url)
     {
@@ -269,24 +274,24 @@ class LaravelBulksmsFacade extends Facade
             foreach ($searchParams as $key => $value) {
                 if (preg_match('/message_type/', $key)) {
                     $params[$key] = $value;
-                } else if (preg_match('/contacts|number|mobile|^to$|toUser|toCustomer|(^user$)|msisdn|receiver|recipient/i', $key)) {
+                } elseif (preg_match('/contacts|number|mobile|^to$|toUser|toCustomer|(^user$)|msisdn|receiver|recipient/i', $key)) {
                     $match += 1;
                     $params[$key]    = '##NUMBER##';
                     $send_key_mobile = $key;
-                } else if (preg_match('/msg|message|text|Body|(^sms$)/i', $key)) {
+                } elseif (preg_match('/msg|message|text|Body|(^sms$)/i', $key)) {
                     $match += 1;
                     $params[$key]     = '##SMS##';
                     $send_key_message = $key;
-                } else if (!preg_match('/schedule|delay/i', $key)) {
+                } elseif (!preg_match('/schedule|delay/i', $key)) {
                     $params[$key] = $value;
                 }
             }
             if ($match == 2) {
                 $BulkSMS_url = $url[0] . '?' . http_build_query($params);
+                $BulkSMS_url = urldecode($BulkSMS_url);
                 $return      = ['status' => true, 'url' => $BulkSMS_url, 'send_key_mobile' => $send_key_mobile, 'send_key_message' => $send_key_message];
             }
         }
         return $return;
     }
-
 }
