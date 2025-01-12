@@ -172,13 +172,17 @@ class LaravelBulksmsFacade extends Facade
     {
         $url = explode('?', $this->config['balance_url']);
         if (count($url) <= 1) {
-            return 0;
+            return 0.00;
+        }
+        $headers = [];
+        if ($this->config['balance_header']) {
+            $headers = explode(',', $this->config['balance_header']);
         }
         parse_str($url[1], $data);
         if (preg_match('/get/i', $this->config['balance_method'])) {
-            $response = $this->httpGet($url[0], $data, explode(',', $this->config['balance_header']));
+            $response = $this->httpGet($url[0], $data, $headers);
         } else {
-            $response = $this->httpPost($url[0], $data, explode(',', $this->config['balance_header']));
+            $response = $this->httpPost($url[0], $data, $headers);
         }
         $balance = [];
         if (is_array($response) || is_object($response)) {
@@ -188,7 +192,8 @@ class LaravelBulksmsFacade extends Facade
                 }
             });
         }
-        return (float) @$balance[0];
+        $balance = isset($balance[0]) ? $balance[0] : 0;
+        return (float) $balance;
     }
 
     /**
@@ -200,8 +205,14 @@ class LaravelBulksmsFacade extends Facade
         $mobileNumber = $this->to;
         $message      = (empty($this->lines)) ? $this->message : implode("\n", $this->lines);
         $url          = explode('?', $this->config['send_url']);
+        if (count($url) <= 1) {
+            throw new Exception('Invalid Send URL', 1);
+        }
         parse_str($url[1], $data);
-        $headers  = explode(',', $this->config['send_header']);
+        $headers = [];
+        if ($this->config['send_header']) {
+            $headers  = explode(',', $this->config['send_header']);
+        }
         $response = [];
 
         $data[$this->config['send_key_mobile']]  = $mobileNumber;

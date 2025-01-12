@@ -12,7 +12,6 @@ class LaravelBulksmsServiceProvider extends ServiceProvider
     public function boot()
     {
         if ($this->app->runningInConsole()) {
-
         }
     }
 
@@ -22,7 +21,7 @@ class LaravelBulksmsServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton('laravel-bulksms', function () {
-            return new LaravelBulksms;
+            return new LaravelBulksms();
         });
     }
 }
