@@ -171,6 +171,9 @@ class LaravelBulksmsFacade extends Facade
     public function balance()
     {
         $url = explode('?', $this->config['balance_url']);
+        if (count($url) <= 1) {
+            return 0;
+        }
         parse_str($url[1], $data);
         if (preg_match('/get/i', $this->config['balance_method'])) {
             $response = $this->httpGet($url[0], $data, explode(',', $this->config['balance_header']));
