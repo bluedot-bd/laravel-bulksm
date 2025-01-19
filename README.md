@@ -11,7 +11,7 @@
 You can install the package via composer:
 
 ```bash
-composer require bluedot-bd/laravel-bulksms
+composer require bluedot-bd/laravel-bulk-sms
 ```
 
 ## Usage
