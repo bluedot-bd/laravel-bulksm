@@ -1,7 +1,7 @@
 # Very short description of the package
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/bluedot-bd/laravel-bulksms.svg?style=flat-square)](https://packagist.org/packages/bluedot-bd/laravel-bulksms)
-[![Total Downloads](https://img.shields.io/packagist/dt/bluedot-bd/laravel-bulksms.svg?style=flat-square)](https://packagist.org/packages/bluedot-bd/laravel-bulksms)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/bluedot-bd/laravel-bulk-sms.svg?style=flat-square)](https://packagist.org/packages/bluedot-bd/bluedot-bd/laravel-bulk-sms)
+[![Total Downloads](https://img.shields.io/packagist/dt/bluedot-bd/laravel-bulk-sms.svg?style=flat-square)](https://packagist.org/packages/bluedot-bd/laravel-bulk-sms)
 ![GitHub Actions](https://github.com/bluedot-bd/laravel-bulksms/actions/workflows/main.yml/badge.svg)
 
 *"laravel-bulksms"* is a Laravel package for integrating with any HTTP-based SMS gateway. The package is compatible with SMS providers in Bangladesh and other countries, and allows for the sending of notifications via Laravel notifications. It also includes a feature for checking the balance of an SMS account with a supported provider. This package can be useful for integrating SMS functionality into a Laravel-based application, sending sms messages to people, and keeping track of SMS usage and account balances.
